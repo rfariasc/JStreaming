@@ -10,15 +10,28 @@ public class Cliente {
 
         User user = create_User(PORT, "127.0.0.1");
 
-        for (int i = 0; i < 10; i++) {
-                user.AddCommand("Howdy" + i);
-                String str = user.takeAnswer();
-                System.out.println(str);
-            }
+//        for (int i = 0; i < 10; i++) {
+//                user.AddCommand("Howdy" + i);
+//                String str = user.takeAnswer();
+//                System.out.println(str);
+//            }
 
-        user.AddCommand("END");
+//        user.AddCommand("END");
 
-        user.Close();
+//        user.Close();
+
+
+
+//        while(true){
+            user.AddCommand("gstreamer");
+            user.takeAnswer();
+         Process process =   GSTreamer_send();
+//        }
+        try {
+            process.waitFor();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     static User create_User(int PORT, String hostname) throws IOException{
@@ -46,6 +59,20 @@ public class Cliente {
 
         return user;
     }
+
+    static Process GSTreamer_send() throws IOException {
+        Runtime runTime= Runtime.getRuntime();
+        Process process=null;
+        try {
+            process = runTime.exec("gst-launch-0.10 filesrc location=/home/beto/Desktop/test.mp3 ! tcpclientsink host=localhost port=3000");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return process;
+    }
+
+
 }
 
 //class Connect implements  Runnable{

@@ -27,8 +27,19 @@ public class User {
 
     public void Close(){
 
-        Receptor.interrupt();
-        Transmitter.interrupt();
+        Receptor.stop();
+        Transmitter.stop();
+//        Receptor.interrupt();
+//        Transmitter.interrupt();
+
+        try {
+            if(s != null ) {s.close();}
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
 
         Commands.clear();
         Commands = null;
@@ -36,12 +47,7 @@ public class User {
         Answer = null;
 
 
-        try {
-            s.close();
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
     }
 

@@ -12,17 +12,28 @@ public class Servidor {
 
         User test1 = create_User(PORT);
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
-        while (true) {
-            String str = test1.takeAnswer();
-            if (str.equals("END")) break;
-            System.out.println("Echoing: " + str);
-            test1.AddCommand(str);
+//        while (true) {
+//            String str = test1.takeAnswer();
+//            if (str.equals("END")) break;
+//            System.out.println("Echoing: " + str);
+//            test1.AddCommand(str);
+//        }
+
+        String str = test1.takeAnswer();
+        System.out.println("Se recibió: " + str);
+        Process process = GSTreamer_listen();
+
+        test1.AddCommand("Estoy ready");
+        try {
+            process.waitFor();
+        } catch (InterruptedException e) {
+           e.printStackTrace();
         }
 
     }
@@ -36,6 +47,18 @@ public class Servidor {
         T1.start();
 
         return user;
+    }
+
+    static Process GSTreamer_listen(){
+        Runtime runTime= Runtime.getRuntime();
+        Process process=null;
+        try {
+            process = runTime.exec("gst-launch-0.10 tcpserversrc host=localhost port=3000 ! decodebin ! audioconvert ! alsasink");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return process;
     }
 }
 
@@ -95,7 +118,7 @@ class Receiver implements Runnable {
                     System.out.println("lo que se va a agregar es: " + str);
                     if(str == null) {
                         System.out.println("Connection Closed! =(");
-                        user.Close();
+        //                user.Close();
                         break;
                     }
                     user.Answer.add(str);

@@ -8,78 +8,72 @@ public class Cliente {
 
         int PORT = 12345;
 
+        User user = create_User(PORT, "127.0.0.1");
+
+        for (int i = 0; i < 10; i++) {
+                user.AddCommand("Howdy" + i);
+                String str = user.takeAnswer();
+                System.out.println(str);
+            }
+
+        user.AddCommand("END");
+
+        user.Close();
+    }
+
+    static User create_User(int PORT, String hostname) throws IOException{
+
         InetAddress addr = InetAddress.getByName("127.0.0.1");
 
         System.out.println("addr = " + addr);
 
-        Socket socket = new Socket(addr, PORT);
+        User user = new User(new Socket(addr, PORT));
+//
+//        Connect connection = new Connect(user);
+//        Thread T1 = new Thread(connection);
+//        T1.start();
 
-        try {
-            System.out.println("socket = " + socket);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            // Output is automatically flushed
-            // by PrintWriter:
-            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+        Transmitter TX = new Transmitter(user);
+        user.setTransmitter(new Thread(TX));
+        user.Transmitter.start();
 
 
-            for (int i = 0; i < 10; i++) {
-                out.println("howdy " + i);
-                String str = in.readLine();
-                System.out.println(str);
-            }
-            out.println("END");
-        } finally {
-            System.out.println("closing...");
-            socket.close();
-        }
-    }
+        Receiver RX = new Receiver(user);
+        user.setReceptor(new Thread(RX));
+        user.Receptor.start();
 
-    static User create_User(int PORT) throws IOException{
 
-        User user = new User(new ServerSocket(PORT));
-
-        Connect connection = new Connect(user);
-        Thread T1 = new Thread(connection);
-        T1.start();
 
         return user;
     }
 }
 
-class Connect implements  Runnable{
-
-    private User user;
-
-    Connect(User user){
-        this.user = user;
-    }
-
-    @Override
-    public void run() {
-
-        try {
-            // Blocks until a connection occurs:
-            user.setSocket(user.s.accept());
-            System.out.println("Connection accepted: " + user.socket);
-
-            Transmitter TX = new Transmitter(user);
-            user.setTransmitter(new Thread(TX));
-            user.Transmitter.start();
-
-
-            Receiver RX = new Receiver(user);
-            user.setReceptor(new Thread(RX));
-            user.Receptor.start();
-
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-}
+//class Connect implements  Runnable{
+//
+//    private User user;
+//
+//    Connect(User user){
+//        this.user = user;
+//    }
+//
+//    @Override
+//    public void run() {
+//
+//        try {
+//            // Blocks until a connection occurs:
+//            user.setSocket(user.s.accept());
+//            System.out.println("Connection accepted: " + user.socket);
+//
+//
+//
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+//}
 
 class Receiver implements Runnable {
 

@@ -14,6 +14,11 @@ public class User {
     LinkedBlockingQueue<String> Answer = new LinkedBlockingQueue<String>();
 
 
+    User(Socket socket){
+        this.s = null;
+        this.socket = socket;
+    }
+
     User(ServerSocket s){
         this.s = s;
         System.out.println("Started: " + s);

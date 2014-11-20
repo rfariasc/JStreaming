@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -16,6 +17,27 @@ public class User {
     User(ServerSocket s){
         this.s = s;
         System.out.println("Started: " + s);
+    }
+
+
+    public void Close(){
+
+        Receptor.interrupt();
+        Transmitter.interrupt();
+
+        Commands.clear();
+        Commands = null;
+        Answer.clear();
+        Answer = null;
+
+
+        try {
+            s.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void setSocket(Socket socket) {
@@ -58,6 +80,8 @@ public class User {
     public void AddCommand(String str){
         Commands.add(str);
     }
+
+
 
 
 }

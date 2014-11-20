@@ -55,13 +55,15 @@ class Connect implements  Runnable{
             user.setSocket(user.s.accept());
             System.out.println("Connection accepted: " + user.socket);
 
+            Transmitter TX = new Transmitter(user);
+            user.setTransmitter(new Thread(TX));
+            user.Transmitter.start();
+
+
             Receiver RX = new Receiver(user);
             user.setReceptor(new Thread(RX));
             user.Receptor.start();
 
-            Transmitter TX = new Transmitter(user);
-            user.setTransmitter(new Thread(TX));
-            user.Receptor.start();
 
 
         } catch (IOException e) {
@@ -82,11 +84,20 @@ class Receiver implements Runnable {
     @Override
     public void run() {
         try {
+            System.out.println("Reciever Running");
+
             BufferedReader in = new BufferedReader(new InputStreamReader(user.socket.getInputStream()));
             while (true) {
                 String str = null;
                 try {
+                    //str = in.readLine();
                     str = in.readLine();
+                    System.out.println("lo que se va a agregar es: " + str);
+                    if(str == null) {
+                        System.out.println("Connection Closed! =(");
+                        user.Close();
+                        break;
+                    }
                     user.Answer.add(str);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -110,6 +121,8 @@ class Transmitter implements Runnable {
     public void run() {
 
         try {
+            System.out.println("Transmitter Running");
+
             PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(user.socket.getOutputStream())), true);
 
             while (true) {

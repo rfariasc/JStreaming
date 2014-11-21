@@ -5,13 +5,22 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Servidor {
     // Choose a port outside of the range 1-1024:
-    public static final int TCP_PORT = 12345;
-    public static final String UDP_PORT = "5000";
+    public static String TCP_PORT = "12345";
+    public static String UDP_PORT = "5000";
 
 
     public static void main(String[] args) throws IOException {
 
-        User user = new User(new ServerSocket(TCP_PORT));
+        if(args.length==2){
+            TCP_PORT = args[0];
+            UDP_PORT = args[1];
+        }else{
+            System.out.println("Modo de uso: java Servidor <TCP PORT> <UDP PORT>");
+            return;
+        }
+
+//        System.out.println(TCP_PORT + " thisdfksdf " + UDP_PORT);
+        User user = new User(new ServerSocket(Integer.parseInt(TCP_PORT)));
 
         System.out.println("Waiting for Connection: " + InetAddress.getLocalHost().getHostAddress());
                 // Blocks until a connection occurs:
@@ -30,22 +39,23 @@ public class Servidor {
         //se manda puerto a usar
 
         String myIP = user.takeAnswer();
+        System.out.println("Se recibió myIP: " + myIP);
         user.AddCommand(UDP_PORT);
 
         //SE recibe el uso
 
 
         String str = user.takeAnswer();
-        System.out.println("Se recibió: " + str);
+        System.out.println("Se recibió str: " + str);
 
 
         Process process = null;
 
         if(str.equals("audio")){
-            process = Run_command("gst-launch-0.10 tcpserversrc host=192.168.0.106 port=3000 ! decodebin ! audioconvert ! alsasink");
+            process = Run_command("gst-launch-0.10 tcpserversrc host=" + myIP + " port=" + UDP_PORT + " ! decodebin ! audioconvert ! alsasink");
         }
         if(str.equals("video") | str.equals("webcam")){
-            process = Run_command("cvlc udp://@:5000");
+            process = Run_command("cvlc udp://@:" + UDP_PORT);
         }
 //        if(str.equals("webcam")){
 //            process = Run_command("gst-launch udpsrc port=1234 ! \"application/x-rtp, payload=127\" ! rtph264depay ! ffdec_h264 ! xvimagesink sync=false ");
@@ -58,14 +68,17 @@ public class Servidor {
 
         user.AddCommand("Estoy ready");
 
-//        JFrame clientGUI = new JFrame();
-//        clientGUI.setDefaultCloseOperation(clientGUI.EXIT_ON_CLOSE);
-//        clientGUI.setVisible(true);
 
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        for (int i=0; i< 1000; i++)
-            System.out.println(in.readLine());
+        str = user.takeAnswer();
+
+        if(str.equals("stop")){
+            process.destroy();
+        }
+
+//        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//        for (int i=0; i< 1000; i++)
+//            System.out.println(in.readLine());
 
 
         try {

@@ -29,9 +29,13 @@ public class Client_GUI extends JFrame {
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(null);
 
-		final JList list = new JList();
+		final JList<String> list = new JList<String>();
 		list.setVisibleRowCount(3);
 		list.setModel(new AbstractListModel() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 			String[] values = new String[] { "audio", "video" };
 
 			public int getSize() {
